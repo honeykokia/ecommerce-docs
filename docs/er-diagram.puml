@@ -1,0 +1,134 @@
+@startuml
+
+skinparam linetype ortho
+
+left to right direction
+
+entity "User" as User {
+    *id: long <<generated>>
+    ---
+    name: string
+    email: string
+    password: string
+    image: string
+    gender: byte
+    birthday: date
+    phone: string
+    city: string
+    country: string
+    address: string
+    role: string <<enum>>
+    'guest, member, admin
+    createdAt: datetime
+    lastLoginAt: datetime
+}
+
+entity "Product" as Product {
+    *id: Long <<generated>>
+    ---
+    promotionId: long <<FK>>
+    categoryId: long <<FK>>
+    name: string
+    price: int
+    imageUrl: string
+    inStock: int
+    rating: double
+    soldCount: int
+    shortDescription: string
+}
+entity "CartItem" as CartItem {
+    *id: long <<generated>>
+    ---
+    cartId: long <<FK>>
+    productId: long <<FK>>
+    quantity: int <<non-negative>>
+    unitPrice: int
+}
+
+entity "Cart" as Cart {
+    *id: long <<generated>>
+    ---
+    userId: long <<FK>>
+    quantity: int <<non-negative>>
+    unitPrice: int
+    createdAt: datetime
+    updatedAt: datetime
+}
+
+entity "Order" as Order {
+    *id: long <<generated>>
+    ---
+    userId: long <<FK>>
+    orderNumber: string
+    status: string <<enum>>
+    'PENDING, PAID, CANCELLED, SHIPPED, COMPLETED
+    paymentMethod: string <<enum>> 
+    'CREDIT_CARD, PAYPAL
+    isPaid: boolean
+    paidAt: datetime <<nullable>>
+    cancelledAt: datetime <<nullable>>
+    shippingMethod: string <<enum>>
+    'STANDARD, EXPRESS
+    shippingAddress: string
+    shippingStatus: string <<enum>>
+    'PENDING, IN_TRANSIT, DELIVERED
+    totalPrice: int <<calculated>>
+    createdAt: datetime
+    updatedAt: datetime
+}
+
+entity "Promotion" as Promotion {
+    *id: long <<generated>>
+    ---
+    name: string
+    disconutType: string <<enum>>
+    'PERCENTAGE, FIXED_AMOUNT
+    disconutValue: int
+    description: string <<nullable>>
+    imageUrl: string
+    isActive: boolean
+    startDate: date
+    endDate: date
+}
+
+entity "Payment" as Payment {
+    *id: long <<generated>>
+    ---
+    orderId: long <<FK, unique>>
+    paymentMethod: string <<enum>> 
+    'CREDIT_CARD, PAYPAL, BANK_TRANSFER
+    status: string <<enum>>
+    'PENDING, COMPLETED, FAILED
+    amount: int 
+    transactionId: string <<nullable>>
+    createdAt: datetime
+    updatedAt: datetime
+}
+
+entity "Category" as Category {
+    *id: long <<generated>>
+    ---
+    name: string
+    description: string <<nullable>>
+}
+
+entity "Tags" as Tag{
+    *id: long <<generated>>
+    ---
+    name: string
+}
+entity "ProductTags" as ProductTag {
+    *productId: long <<FK>>
+    *tagId: long <<FK>>
+}
+
+Tag }|--|{ ProductTag
+ProductTag }|--|| Product
+Cart }|--|| User
+Cart ||--|{ CartItem
+CartItem }|--|| Product
+Order }|--|| User
+Product }|--|| Promotion
+Product }|--|| Category
+Payment ||--|| Order
+@enduml

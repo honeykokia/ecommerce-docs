@@ -1,0 +1,1559 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
+openapi: 3.0.3
+info:
+  title: E-Commerce-API Spec
+  description: 電商API功能規劃
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: users
+    description: "使用者相關操作"
+  - name: products
+    description: "商品相關操作"
+  - name: categories
+    description: "商品分類相關操作"
+  - name: carts
+    description: "購物車相關操作"
+  - name: orders
+    description: "訂單相關操作"
+  - name: promotions
+    description: "活動相關操作"
+  - name: admin
+    description: "管理員相關操作"
+  - name: payments
+    description: "付款相關操作"
+paths:
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: "使用者登入"
+      description: "使用者輸入帳號密碼進行登入"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          description: "登入成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: "#/components/schemas/LoginInfo"
+        '400':
+          description: "登入失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    email: "帳號或密碼錯誤"
+                    password: "帳號或密碼錯誤"
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: "使用者註冊"
+      description: "使用者輸入資料進行註冊"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        '200':
+          description: "註冊成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: "#/components/schemas/UserInfo"
+        '400':
+          description: "註冊失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    email: "格式不符合"
+                    password: "密碼未輸入"
+        '401': 
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /users/me:
+    get:
+      tags:
+        - users
+      summary: "使用者資料查詢"
+      description: "查詢目前使用者資料"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "查詢成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: "#/components/schemas/UserInfo"
+        '400':
+          description: "查詢失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    put:
+      tags:
+        - users
+      summary: 使用者資料更新
+      description: 使用者修改資料或照片
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        '200':
+          description: "資料更新成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "資料更新失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    image: "照片格是錯誤"
+                    birthday: "生日不能大於今日"
+                    address: "地址未輸入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /users/me/password:
+    patch:
+      tags:
+        - users
+      summary: 使用者修改密碼
+      description: 使用者輸入新的密碼進行修改
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePasswordRequest"
+      responses:
+        '200':
+          description: "密碼修改成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "密碼修改失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    oldPassword: "舊密碼錯誤"
+                    NewConfirmPassword: "輸入密碼不一致"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /users/verify/{token}:
+    get:
+      tags:
+        - users
+      summary: "使用者驗證"
+      description: "驗證使用者是否登入"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema:
+            type: string
+          description: "JWT Token"
+      responses:
+        '200':
+          description: "驗證成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "驗證失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /products:
+    get:
+      tags:
+        - products
+      summary: "產品列表"
+      description: "取得產品列表"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: categoryId
+          required: false
+          schema:
+            type: integer
+          description: "分類ID"
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+          description: "產品名稱"
+      responses:
+        '200':
+          description: "取得產品列表成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          products:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/ProductInfo"
+        '400':
+          description: "取得產品列表失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /products/{productId}:
+    get:
+      tags:
+        - products
+      summary: "產品內容"
+      description: "取得產品內容"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+          description: "產品ID"
+      responses:
+        '200':
+          description: "取得產品內容成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          product:
+                            $ref: "#/components/schemas/ProductInfo"
+        '400':
+          description: "取得產品內容失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /categories:
+    get:
+      tags:
+        - categories
+      summary: "商品分類列表"
+      description: "取得商品分類列表"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "取得商品分類列表成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/CategoryInfo"
+        '400':
+          description: "取得商品分類列表失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+
+  /carts/me:
+    get:
+      tags:
+        - carts
+      summary: "使用者購物車"
+      description: "取得目前使用者的購物車內容"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "取得購物車內容成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          cart:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/CartInfo"
+        '400':
+          description: "取得購物車內容失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    post:
+      tags:
+        - carts
+      summary: "新增商品到購物車"
+      description: "將商品加入目前使用者的購物車"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartInfo"
+      responses:
+        '200':
+          description: "新增商品到購物車成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "新增商品到購物車失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    product: "產品不存在或已下架"
+                    quantity: "數量必須大於0"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    delete:
+      tags:
+        - carts
+      summary: "清空購物車"
+      description: "清空目前使用者的購物車內容"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "清空購物車成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "清空購物車失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /carts/me/{productId}:
+    delete:
+      tags:
+        - carts
+      summary: "從購物車移除商品"
+      description: "從目前使用者的購物車中移除指定商品"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+          description: "商品ID"
+      responses:
+        '200':
+          description: "從購物車移除商品成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "從購物車移除商品失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    productId: "產品不存在或已下架"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    patch:
+      tags:
+        - carts
+      summary: "更新購物車商品數量"
+      description: "更新目前使用者購物車中指定商品的數量"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+          description: "商品ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCartProductRequest"
+      responses:
+        '200':
+          description: "更新購物車商品數量成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "更新購物車商品數量失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    productId: "產品不存在或已下架"
+                    quantity: "數量必須大於0"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /orders/me:
+    get:
+      tags:
+        - orders
+      summary: "使用者訂單列表"
+      description: "取得目前使用者的訂單列表"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "取得訂單列表成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          orders:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/OrderInfo"
+        '400':
+          description: "取得訂單列表失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    post:
+      tags:
+        - orders
+      summary: "建立訂單"
+      description: "使用者提交購物車內容建立新的訂單"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+      responses:
+        '200':
+          description: "建立訂單成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          order:
+                            $ref: "#/components/schemas/OrderInfo"
+        '400':
+          description: "建立訂單失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /orders/{orderId}/items:
+    get:
+      tags:
+        - orders
+      summary: "訂單明細"
+      description: "取得指定訂單的明細"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+          description: "訂單ID"
+      responses:
+        '200':
+          description: "取得訂單明細成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/OrderDetailInfo"
+        '400':
+          description: "取得訂單明細失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /promotions:
+    get:
+      tags:
+        - promotions
+      summary: "活動列表"
+      description: "取得目前的活動列表"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "取得活動列表成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          promotions:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/PromotionInfo"
+        '400':
+          description: "取得活動列表失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/users:
+    get:
+      tags:
+        - admin
+      summary: "管理員查詢使用者列表"
+      description: "管理員查詢所有使用者資料"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "查詢使用者列表成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          users:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/UserInfo"
+        '400':
+          description: "查詢使用者列表失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/users/{userId}/status:
+    patch:
+      tags:
+        - admin
+      summary: "管理員更新使用者狀態"
+      description: "管理員更新指定使用者的狀態"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+          description: "使用者ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserStatusRequest"
+      responses:
+        '200':
+          description: "更新使用者狀態成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+        '400':
+          description: "更新使用者狀態失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/products:
+    post:
+      tags:
+        - admin
+      summary: "新增商品"
+      description: "管理員新增商品資訊"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInfo"
+      responses:
+        '200':
+          description: "新增商品成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "新增商品失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    name: "商品名稱未輸入"
+                    price: "價格必須大於0"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/products/{productId}:
+    put:
+      tags:
+        - admin
+      summary: "更新商品"
+      description: "管理員更新商品資訊"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+          description: "商品ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInfo"
+      responses:
+        '200':
+          description: "更新商品成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "更新商品失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    name: "商品名稱未輸入"
+                    price: "價格必須大於0"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    delete:
+      tags:
+        - admin
+      summary: "刪除商品"
+      description: "管理員刪除商品"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+          description: "商品ID"
+      responses:
+        '200':
+          description: "刪除商品成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "刪除商品失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/orders:
+    get:
+      tags:
+        - admin
+      summary: "管理員查詢訂單列表"
+      description: "管理員查詢所有訂單資料"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "查詢訂單列表成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          orders:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/OrderInfo"
+        '400':
+          description: "查詢訂單列表失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/orders/{orderId}:
+    patch:
+      tags:
+        - admin
+      summary: "管理員更新訂單狀態"
+      description: "管理員更新指定訂單的狀態"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+          description: "訂單ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderRequest"
+      responses:
+        '200':
+          description: "更新訂單狀態成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "更新訂單狀態失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    delete:
+      tags:
+        - admin
+      summary: "管理員刪除訂單"
+      description: "管理員刪除指定訂單"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+          description: "訂單ID"
+      responses:
+        '200':
+          description: "刪除訂單成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "刪除訂單失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /payments/initiate:
+    post:
+      tags:
+        - payments
+      summary: "初始化付款"
+      description: "使用者提交付款資訊以初始化付款流程"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInitiateRequest"
+      responses:
+        '200':
+          description: "付款初始化成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "付款初始化失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError" 
+  /payments/mock:
+    post:
+      tags:
+        - payments
+      summary: "模擬付款"
+      description: "模擬付款流程以測試支付系統"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentMockRequest"
+      responses:
+        '200':
+          description: "模擬付款成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+
+        '400':
+          description: "模擬付款失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          nullable: true
+          type: object
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: Test@gmail.com
+        password:
+          type: string
+          example: Aa123456
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - confirmPassword
+      properties:
+        email:
+          type: string
+          example: "Test@gmail.com"
+        password:
+          type: string
+          example: Aa123456
+        confirmPassword:
+          type: string
+          example: Aa123456
+    UpdateUserRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          example: /upload/defaultAvater.jpg
+        name:
+          type: string
+          example: "Test"
+        gender:
+          type: number
+          example: 1
+        birthday:
+          type: string
+          format: date
+          example: 2025-06-20
+        phone:
+          type: string
+          example: "0912345678"
+        city:
+          type: string
+          example: "台北市"
+        country:
+          type: string
+          example: "中正區"
+        address:
+          type: string
+          example: "我家巷口"
+    UpdatePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+        - newConfirmPassword
+      properties:
+        oldPassword:
+          type: string
+          example: Aa123456
+        newPassword:
+          type: string
+          example: Bb123456
+        newConfirmPassword:
+          type: string
+          example: Bb123456
+    UpdateOrderRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, PAID, SHIPPED, COMPLETED, CANCELED]
+          example: "PAID"
+        shippingMethod:
+          type: string
+          example: "STANDARD"
+        shippingAddress:
+          type: string
+          example: "台北市中正區某某路123號"
+    CheckoutRequest:
+      type: object
+      required:
+        - cartId
+        - paymentMethod
+        - shippingMethod
+        - shippingAddress
+      properties:
+        cartId:
+          type: long
+          example: 123
+          description: "購物車 ID"
+        paymentMethod:
+          type: string
+          enum: [CREDIT_CARD, PAYPAL, LINE_PAY]
+          example: CREDIT_CARD
+          description: "付款方式"
+        shippingMethod:
+          type: string
+          example: STANDARD
+          description: "配送方式"
+        shippingAddress:
+          type: string
+          example: "台北市中正區某某路123號"
+          description: "配送地址"
+        notes:
+          type: string
+          example: "請在包裹上標註禮物"
+    PaymentInitiateRequest:
+      type: object
+      properties:
+        orderId:
+          type: long
+          example: 1
+        paymentMethod:
+          type: string
+          enum: [CREDIT_CARD, PAYPAL, LINE_PAY]
+          example: "CREDIT_CARD"
+        amount:
+          type: integer
+          example: 4000
+    PaymentMockRequest:
+      type: object
+      properties:
+        orderId:
+          type: long
+          example: 1
+        status:
+          type: string
+          enum: [SUCCESS, FAILED]
+          example: "SUCCESS"
+    UpdateCartProductRequest:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          example: 2
+    UpdateUserStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, BANNED]
+          example: ACTIVE
+    ErrorInfo:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            email: "信箱格式不符"
+            password: "密碼錯誤"
+    LoginInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Test"
+        email:
+          type: string
+          example: "test@gmail.com"
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    UserInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          example: Test@gmail.com
+        name:
+          type: string
+          example: "Test"
+    ProductInfo:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        name:
+          type: string
+          example: "藍芽耳機"
+        price:
+          type: integer
+          example: 2000
+        promotionId:
+          type: long
+          example: 1
+        imageUrl:
+          type: string
+          example: "/upload/defaultProduct.jpg"
+        categoryId:
+          type: long
+          example: 1
+        inStock:
+          type: integer
+          example: 20
+        rating:
+          type: number
+          format: double
+          example: 4.5
+        soldCount:
+          type: integer
+          example: 36
+        shortDescription:
+          type: string
+          example: "這是最新款的藍芽耳機，目前折價9折熱賣中"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/TagInfo"
+    CategoryInfo:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        name:
+          type: string
+          example: 耳機
+        description:
+          type: string
+          example: "各式藍芽耳機"
+    CartInfo:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        userId:
+          type: long
+          example: 1
+        productId:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        unitPrice:
+          type: integer
+          example: 2000
+        createAt:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+        updateAt:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+    OrderDetailInfo:
+      type: object
+      properties:
+        orderId:
+          type: long
+          example: 1
+        productId:
+          type: long
+          example: 1
+        productName:
+          type: string
+          example: "藍芽耳機"
+        price:
+          type: integer
+          example: 2000
+        quantity:
+          type: integer
+          example: 2
+        totalPrice:
+          type: integer
+          example: 4000
+    OrderInfo:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        userId:
+          type: long
+          example: 1
+        orderNumber:
+          type: string
+          example: "ORD123456789" 
+        status:
+          type: string
+          example: "PENDING"
+        paymentMethod:
+          type: string
+          enum: [CREDIT_CARD, PAYPAL, LINE_PAY]
+          example: "CREDIT_CARD"
+        isPaid:
+          type: boolean
+          example: false
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-06-23T14:00:00"
+        cancelledAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-06-23T14:00:00"
+        shippingMethod:
+          type: string
+          example: "STANDARD"
+        shippingAddress:
+          type: string
+          example: "台北市中正區某某路123號"
+        shippingStatus:
+          type: string
+          example: "PENDING"
+        totalPrice:
+          type: long
+          example: 4000
+        createAt:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+        updateAt:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+    TagInfo:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        name:
+          type: string
+          example: "熱賣"
+    PromotionInfo:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        name:
+          type: string
+          example: "夏季大促銷"
+        discountType:
+          type: string
+          enum: [PERCENTAGE, FIXED]
+          example: "PERCENTAGE"
+          description: "折扣類型：PERCENTAGE 為百分比折扣，FIXED 為固定金額折扣"
+        discountValue:
+          type: number
+          example: 50
+          description: "折扣值：若為百分比則代表百分比（50 表示 50%），若為固定金額則表示折抵金額（如 200 元"
+        description:
+          type: string
+          example: "全館商品最高折扣50%"
+        startDate:
+          type: string
+          format: date-time
+          example: "2025-06-01T00:00:00"
+        endDate:
+          type: string
+          format: date-time
+          example: "2025-06-30T23:59:59"
+        imageUrl:
+          type: string
+          example: "/upload/event.jpg"
+        isActive:
+          type: boolean
+          example: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+  responses:
+    UnauthorizedError:
+      description: "未授權"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiResponse"
+          example:
+            timestamp: "2025-06-23T14:00:00"
+            data: null
+    forbiddenError:
+      description: "禁止存取"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiResponse"
+          example:
+            timestamp: "2025-06-23T14:00:00"
+            data: null
+    NotFoundError:
+      description: "找不到資源"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiResponse"
+          example:
+            timestamp: "2025-06-23T14:00:00"
+            data: null
+  examples:

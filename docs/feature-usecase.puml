@@ -1,0 +1,102 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor<<design>> LightPink
+  BackgroundColor<<complete>> LightGreen
+  BorderColor black
+}
+
+actor guest
+actor member
+actor admin
+
+
+package User{
+    usecase "登入" <<design>> as Login
+    usecase "註冊" <<complete>> as Register
+    usecase "忘記密碼" <<design>> as ForgetPw
+    usecase "個人資料" <<design>> as Profile
+    usecase "編輯個人資料" <<design>> as EditProfile
+    usecase "修改密碼" <<design>> as ChangePw
+}
+
+package Product{
+    usecase "商品列表" <<design>> as ProductList
+    usecase "產品詳情" <<design>> as ProductDetail
+    usecase "產品分類" <<design>> as ProductCategory
+    usecase "搜尋商品" <<design>> as SearchProduct
+}
+
+package Cart {
+  usecase "加入購物車" <<design>> as AddCart
+  usecase "查看購物車" <<design>> as ViewCart
+  usecase "修改購物車" <<design>> as EditCart
+  usecase "刪除購物車" <<design>> as DeleteCart
+}
+
+package Order{
+    usecase "建立訂單" <<design>> as AddOrder
+    usecase "查看訂單" <<design>> as ViewOrder
+    usecase "訂單詳情" <<design>> as OrderDetail
+}
+
+package Promotion{
+  usecase "查看活動" <<design>> as ViewEvent
+}
+
+package AdminPanel{
+    usecase "商品新增" <<design>> as AddProduct
+    usecase "商品編輯" <<design>> as EditProduct
+    usecase "商品刪除" <<design>> as DeleteProduct
+    usecase "訂單編輯" <<design>> as EditOrder
+    usecase "訂單刪除" <<design>> as DeleteOrder
+    usecase "會員列表" <<design>> as MemberList
+    usecase "會員狀態編輯" <<design>> as EditMemberStatus
+    usecase "活動新增" <<design>> as AddEvent
+    usecase "活動編輯" <<design>> as EditEvent
+    usecase "活動刪除" <<design>> as DeleteEvent
+
+}
+
+package Payment{
+  usecase "啟動付款" <<design>> as InitiatePayment
+  usecase "模擬付款" <<design>> as MockPayment
+  usecase "處理付款結果" <<design>> as PaymentResult
+}
+
+member --> AddCart
+member --> ViewCart
+member --> EditCart
+member --> DeleteCart
+member --> Profile
+member --> EditProfile
+member --> ChangePw
+member --> AddOrder
+member --> ViewOrder
+member --> OrderDetail
+member --> InitiatePayment
+member --> MockPayment
+member --> PaymentResult
+
+guest --> Login
+guest --> Register
+guest --> ForgetPw
+guest --> ProductList
+guest --> ProductDetail
+guest --> ProductCategory
+guest --> SearchProduct
+guest --> ViewEvent
+
+admin --> MemberList
+admin --> EditMemberStatus
+admin --> AddProduct
+admin --> EditProduct
+admin --> DeleteProduct
+admin --> EditOrder
+admin --> DeleteOrder
+admin --> AddEvent
+admin --> EditEvent
+admin --> DeleteEvent
+
+@enduml
