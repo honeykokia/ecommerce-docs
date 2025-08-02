@@ -128,7 +128,7 @@ paths:
                         type: object
                         properties:
                           user:
-                            $ref: "#/components/schemas/UserInfo"
+                            $ref: "#/components/schemas/UserProfileInfo"
         '400':
           description: "查詢失敗"
           content:
@@ -1549,6 +1549,44 @@ components:
         isActive:
           type: boolean
           example: true
+    UserProfileInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "user@example.com"
+        name:
+          type: string
+          example: "新加入會員"
+        image:
+          type: string
+          example: "/upload/defaultAvatar.png"
+          nullable: true
+        gender:
+          type: integer
+          example: 1
+          nullable: true
+        birthday:
+          type: string
+          format: date
+          example: "2000-01-01"
+          nullable: true
+        phone:
+          type: string
+          example: "0912345678"
+          nullable: true
+        city:
+          type: string
+          example: "台北市"
+          nullable: true
+        country:
+          type: string
+          example: "台灣"
+          nullable: true
+        address:
+          type: string
+          example: "某某路123號"
+          nullable: true
   securitySchemes:
     bearerAuth:
       type: http
