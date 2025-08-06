@@ -148,7 +148,7 @@ paths:
       tags:
         - users
       summary: 使用者資料更新
-      description: 使用者修改資料或照片
+      description: 使用者修改資料
       security:
         - bearerAuth: []
       requestBody:
@@ -157,6 +157,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/UpdateUserRequest"
+                      
       responses:
         '200':
           description: "資料更新成功"
@@ -174,9 +175,45 @@ paths:
                 timestamp: "2025-06-23T14:00:00"
                 data:
                   errors:
-                    image: "照片格是錯誤"
+                    image: "照片格式錯誤"
                     birthday: "生日不能大於今日"
                     address: "地址未輸入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /users/me/avatar:
+    put:
+      tags:
+        - users
+      summary: 使用者修改頭像
+      description: 使用者上傳新的頭像圖片
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UpdateUserAvatarRequest"
+      responses:
+        '200':
+          description: "頭像更新成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "頭像更新失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    image: "圖片格式錯誤"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -1198,9 +1235,6 @@ components:
     UpdateUserRequest:
       type: object
       properties:
-        image:
-          type: string
-          example: /upload/defaultAvater.jpg
         name:
           type: string
           example: "Test"
@@ -1223,6 +1257,12 @@ components:
         address:
           type: string
           example: "我家巷口"
+    UpdateUserAvatarRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          example: /upload/defaultAvater.jpg
     UpdatePasswordRequest:
       type: object
       required:
