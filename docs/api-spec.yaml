@@ -272,6 +272,28 @@ paths:
                   type: string
                   format: email
                   example: "user@example.com"
+      responses:
+        '200':
+          description: "忘記密碼請求成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "忘記密碼請求失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    email: "Email格式錯誤或未註冊"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
   /users/verify/{token}:
     get:
       tags:
@@ -1262,7 +1284,11 @@ components:
       properties:
         image:
           type: string
-          example: /upload/defaultAvater.jpg
+          example: "/upload/defaultAvater.jpg"
+        file:
+          type: string
+          format: binary
+          description: "上傳的圖片檔案"
     UpdatePasswordRequest:
       type: object
       required:

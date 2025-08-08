@@ -1,14 +1,15 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    gender SMALLINT NOT NULL,
+    image VARCHAR(255),
+    gender SMALLINT,
     birthday DATE,
-    phone VARCHAR(20) NOT NULL,
-    city VARCHAR(100) NOT NULL,
-    country VARCHAR(100) NOT NULL,
-    address VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) ,
+    city VARCHAR(100) ,
+    country VARCHAR(100) ,
+    address VARCHAR(255) ,
     role VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_login_at TIMESTAMP NOT NULL
@@ -107,4 +108,15 @@ CREATE TABLE product_tags (
     PRIMARY KEY (product_id, tag_id),
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tokens(
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    token_type VARCHAR(50) NOT NULL, -- 存儲 TokenType 枚舉值
+    used BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

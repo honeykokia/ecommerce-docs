@@ -112,14 +112,26 @@ entity "Category" as Category {
     description: string <<nullable>>
 }
 
-entity "Tags" as Tag{
+entity "Tag" as Tag{
     *id: long <<generated>>
     ---
     name: string
 }
-entity "ProductTags" as ProductTag {
+entity "ProductTag" as ProductTag {
     *productId: long <<FK>>
     *tagId: long <<FK>>
+}
+
+entity "Token" as Token {
+    *id: long <<generated>>
+    ---
+    userId: long <<FK>>
+    token: string <<unique>>
+    tokenType: string <<enum>>
+    'forgetPassword, emailVerification
+    used: boolean <<default false>>
+    createdAt: datetime
+    expiresAt: datetime
 }
 
 Tag }|--|{ ProductTag
@@ -131,4 +143,5 @@ Order }|--|| User
 Product }|--|| Promotion
 Product }|--|| Category
 Payment ||--|| Order
+Token }|--|| User
 @enduml
