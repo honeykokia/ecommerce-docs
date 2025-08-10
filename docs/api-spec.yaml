@@ -522,7 +522,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CartInfo"
+              $ref: "#/components/schemas/CartAddItemRequest"
       responses:
         '200':
           description: "新增商品到購物車成功"
@@ -1145,6 +1145,78 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
+  /admin/promotions:
+    post:
+      tags:
+        - admin
+      summary: "管理員新增促銷活動"
+      description: "管理員新增一個促銷活動"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePromotionRequest"
+      responses:
+        '201':
+          description: "新增促銷活動成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "新增促銷活動失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/categories:
+    post:
+      tags:
+        - admin
+      summary: "管理員新增商品類別"
+      description: "管理員新增一個商品類別"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+      responses:
+        '200':
+          description: "新增商品類別成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "新增商品類別失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
   /payments/initiate:
     post:
       tags:
@@ -1202,7 +1274,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiResponse"
-
         '400':
           description: "模擬付款失敗"
           content:
@@ -1401,6 +1472,68 @@ components:
           example:
             email: "信箱格式不符"
             password: "密碼錯誤"
+    CartAddItemRequest:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: long
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        unitPrice:
+          type: integer
+          example: 2000
+    CreatePromotionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "夏季大促銷"
+          description: "促銷活動名稱"
+        discountType:
+          type: string
+          enum: [PERCENTAGE, FIXED_AMOUNT]
+          example: "PERCENTAGE"
+          description: "折扣類型"
+        discountValue:
+          type: integer
+          example: 10
+          description: "折扣數值"
+        description:
+          type: string
+          example: "夏季大促銷活動，所有商品 8 折"
+          description: "促銷活動描述"
+        imageUrl:
+          type: string
+          example: "/upload/promotions/summer_sale.jpg"
+          description: "促銷活動圖片"
+        isActive:
+          type: boolean
+          example: true
+          description: "促銷活動是否啟用"
+        startDate:
+          type: string
+          format: date
+          example: "2025-06-01"
+          description: "促銷活動開始日期"
+        endDate:
+          type: string
+          format: date
+          example: "2025-06-30"
+          description: "促銷活動結束日期"
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "電腦周邊"
+        description:
+          type: string
+          example: "各式電腦周邊設備"
     LoginInfo:
       type: object
       properties:
@@ -1481,20 +1614,7 @@ components:
         userId:
           type: long
           example: 1
-        productId:
-          type: integer
-          example: 1
-        quantity:
-          type: integer
-          example: 2
-        unitPrice:
-          type: integer
-          example: 2000
         createAt:
-          type: string
-          format: date-time
-          example: "2025-06-23T14:00:00"
-        updateAt:
           type: string
           format: date-time
           example: "2025-06-23T14:00:00"
@@ -1510,7 +1630,7 @@ components:
         productName:
           type: string
           example: "藍芽耳機"
-        price:
+        unitPrice:
           type: integer
           example: 2000
         quantity:

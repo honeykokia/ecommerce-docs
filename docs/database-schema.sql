@@ -48,6 +48,14 @@ CREATE TABLE products (
     FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE SET NULL
 );
 
+CREATE TABLE carts (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL, -- 存儲 CartStatus 枚舉值
+    created_at TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     order_number VARCHAR(100) NOT NULL UNIQUE,
@@ -66,15 +74,17 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE carts (
+CREATE TABLE order_items (
     id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
     quantity INT NOT NULL,
     unit_price INT NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    user_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    total_price INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
+
 CREATE TABLE cart_items (
     id SERIAL PRIMARY KEY,
     cart_id INT NOT NULL,

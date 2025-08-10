@@ -19,62 +19,75 @@ entity "User" as User {
     address: string
     role: string <<enum>>
     'guest, member, admin
-    createdAt: datetime
-    lastLoginAt: datetime
+    created_at: datetime
+    last_login_at: datetime
 }
 
 entity "Product" as Product {
     *id: Long <<generated>>
     ---
-    promotionId: long <<FK>>
-    categoryId: long <<FK>>
+    promotion_id: long <<FK>>
+    category_id: long <<FK>>
     name: string
     price: int
-    imageUrl: string
-    inStock: int
+    image_url: string
+    in_stock: int
     rating: double
-    soldCount: int
-    shortDescription: string
+    sold_count: int
+    short_description: string
 }
 entity "CartItem" as CartItem {
     *id: long <<generated>>
     ---
-    cartId: long <<FK>>
-    productId: long <<FK>>
+    cart_id: long <<FK>>
+    product_id: long <<FK>>
     quantity: int <<non-negative>>
-    unitPrice: int
+    unit_price: int
 }
 
 entity "Cart" as Cart {
     *id: long <<generated>>
     ---
-    userId: long <<FK>>
+    user_id: long <<FK>>
     quantity: int <<non-negative>>
-    unitPrice: int
-    createdAt: datetime
-    updatedAt: datetime
+    unit_price: int
+    status: string <<enum>>
+    'ACTIVE, CHECKED_OUT, ABANDONED
+    created_at: datetime
+    updated_at: datetime
 }
 
 entity "Order" as Order {
     *id: long <<generated>>
     ---
-    userId: long <<FK>>
-    orderNumber: string
+    user_id: long <<FK>>
+    order_number: string
     status: string <<enum>>
     'PENDING, PAID, CANCELLED, SHIPPED, COMPLETED
-    paymentMethod: string <<enum>> 
+    payment_method: string <<enum>> 
     'CREDIT_CARD, PAYPAL
-    isPaid: boolean
-    paidAt: datetime <<nullable>>
-    cancelledAt: datetime <<nullable>>
-    shippingMethod: string <<enum>>
+    is_paid: boolean
+    paid_at: datetime <<nullable>>
+    cancelled_at: datetime <<nullable>>
+    shipping_method: string <<enum>>
     'STANDARD, EXPRESS
-    shippingAddress: string
-    shippingStatus: string <<enum>>
+    shipping_address: string
+    shipping_status: string <<enum>>
     'PENDING, IN_TRANSIT, DELIVERED
-    totalPrice: int <<calculated>>
-    createdAt: datetime
-    updatedAt: datetime
+    total_price: int <<calculated>>
+    created_at: datetime
+    updated_at: datetime
+}
+
+entity "OrderItem" as OrderItem{
+    *id: long <<generated>>
+    ---
+    order_id: long <<FK>>
+    product_id: long
+    product_name: string
+    quantity: int <<non-negative>>
+    unit_price: int
+    total_price: int <<calculated>>
 }
 
 entity "Promotion" as Promotion {
@@ -86,23 +99,23 @@ entity "Promotion" as Promotion {
     disconutValue: int
     description: string <<nullable>>
     imageUrl: string
-    isActive: boolean
-    startDate: date
-    endDate: date
+    is_active: boolean
+    start_date: date
+    end_date: date
 }
 
 entity "Payment" as Payment {
     *id: long <<generated>>
     ---
-    orderId: long <<FK, unique>>
-    paymentMethod: string <<enum>> 
+    order_id: long <<FK, unique>>
+    payment_method: string <<enum>> 
     'CREDIT_CARD, PAYPAL, BANK_TRANSFER
     status: string <<enum>>
     'PENDING, COMPLETED, FAILED
     amount: int 
-    transactionId: string <<nullable>>
-    createdAt: datetime
-    updatedAt: datetime
+    transaction_id: string <<nullable>>
+    created_at: datetime
+    updated_at: datetime
 }
 
 entity "Category" as Category {
@@ -118,20 +131,20 @@ entity "Tag" as Tag{
     name: string
 }
 entity "ProductTag" as ProductTag {
-    *productId: long <<FK>>
-    *tagId: long <<FK>>
+    *product_id: long <<FK>>
+    *tag_id: long <<FK>>
 }
 
 entity "Token" as Token {
     *id: long <<generated>>
     ---
-    userId: long <<FK>>
+    user_id: long <<FK>>
     token: string <<unique>>
-    tokenType: string <<enum>>
+    token_type: string <<enum>>
     'forgetPassword, emailVerification
     used: boolean <<default false>>
-    createdAt: datetime
-    expiresAt: datetime
+    created_at: datetime
+    expires_at: datetime
 }
 
 Tag }|--|{ ProductTag
@@ -140,6 +153,7 @@ Cart }|--|| User
 Cart ||--|{ CartItem
 CartItem }|--|| Product
 Order }|--|| User
+Order ||--|{ OrderItem
 Product }|--|| Promotion
 Product }|--|| Category
 Payment ||--|| Order
