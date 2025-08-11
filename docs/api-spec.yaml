@@ -922,7 +922,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ProductInfo"
+              $ref: "#/components/schemas/CreateProductRequest"
       responses:
         '200':
           description: "新增商品成功"
@@ -1534,6 +1534,73 @@ components:
         description:
           type: string
           example: "各式電腦周邊設備"
+    CreateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "藍芽耳機"
+        price:
+          type: integer
+          example: 2000
+        promotionId:
+          type: long
+          example: 1
+        categoryId:
+          type: long
+          example: 1
+        imageUrl:
+          type: string
+          example: "/upload/defaultProduct.jpg"
+        inStock:
+          type: integer
+          example: 20
+        rating:
+          type: number
+          format: double
+          example: 4.5
+        soldCount:
+          type: integer
+          example: 36
+        shortDescription:
+          type: string
+          example: "這是最新款的藍芽耳機，目前折價9折熱賣中"
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "藍芽耳機"
+        price:
+          type: integer
+          example: 2000
+        promotionId:
+          type: long
+          example: 1
+        categoryId:
+          type: long
+          example: 1
+        imageUrl:
+          type: string
+          example: "/upload/defaultProduct.jpg"
+        inStock:
+          type: integer
+          example: 20
+        rating:
+          type: number
+          format: double
+          example: 4.5
+        soldCount:
+          type: integer
+          example: 36
+        shortDescription:
+          type: string
+          example: "這是最新款的藍芽耳機，目前折價9折熱賣中"
+        tags:
+          type: array
+          items:
+            type: integer
+            example: [1]
     LoginInfo:
       type: object
       properties:
