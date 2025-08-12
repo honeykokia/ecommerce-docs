@@ -1675,7 +1675,7 @@ components:
     CartInfo:
       type: object
       properties:
-        id:
+        cartItemId:
           type: long
           example: 1
         userId:
