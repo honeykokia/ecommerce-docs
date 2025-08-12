@@ -19,6 +19,8 @@ entity "User" as User {
     address: string
     role: string <<enum>>
     'guest, member, admin
+    status: string <<enum>>
+    'ACTIVE, INACTIVE, BANNED
     created_at: datetime
     last_login_at: datetime
 }

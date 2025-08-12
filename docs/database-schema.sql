@@ -11,6 +11,7 @@ CREATE TABLE users (
     country VARCHAR(100) ,
     address VARCHAR(255) ,
     role VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_login_at TIMESTAMP NOT NULL
 );

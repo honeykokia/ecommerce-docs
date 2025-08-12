@@ -331,6 +331,42 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
+  /users/verify/resend:
+    post:
+      tags:
+        - users
+      summary: "重新發送驗證郵件"
+      description: "重新發送驗證郵件給使用者"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendVerificationEmailRequest"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: "重新發送驗證郵件成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "重新發送驗證郵件失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    email: "Email格式錯誤或未註冊"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
   /products:
     get:
       tags:
@@ -1601,6 +1637,13 @@ components:
           items:
             type: integer
             example: [1]
+    ResendVerificationEmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "test@gmail.com"
     LoginInfo:
       type: object
       properties:
