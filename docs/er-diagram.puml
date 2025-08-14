@@ -4,160 +4,289 @@ skinparam linetype ortho
 
 left to right direction
 
-entity "User" as User {
-    *id: long <<generated>>
+entity "users" as users {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    name: string
-    email: string
-    password: string
-    image: string
-    gender: byte
-    birthday: date
-    phone: string
-    city: string
-    country: string
-    address: string
-    role: string <<enum>>
-    'guest, member, admin
-    status: string <<enum>>
-    'ACTIVE, INACTIVE, BANNED
-    created_at: datetime
-    last_login_at: datetime
+    name: VARCHAR(100)
+    'NOT NULL
+    email: VARCHAR(255)
+    'NOT NULL, UNIQUE
+    password: VARCHAR(255)
+    'NOT NULL
+    image: VARCHAR(255)
+    gender: SMALLINT
+    birthday: DATE
+    phone: VARCHAR(20)
+    city: VARCHAR(100)
+    country: VARCHAR(100)
+    address: VARCHAR(255)
+    role: VARCHAR(50)
+    'guest, member, admin / NOT NULL
+    status: VARCHAR(50)
+    'ACTIVE, INACTIVE, BANNED / NOT NULL
+    created_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT now()
+    last_login_at: TIMESTAMPTZ
+    'NOT NULL
 }
 
-entity "Product" as Product {
-    *id: Long <<generated>>
+entity "promotions" as promotions {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    promotion_id: long <<FK>>
-    category_id: long <<FK>>
-    name: string
-    price: int
-    image_url: string
-    in_stock: int
-    rating: double
-    sold_count: int
-    short_description: string
-}
-entity "CartItem" as CartItem {
-    *id: long <<generated>>
-    ---
-    cart_id: long <<FK>>
-    product_id: long <<FK>>
-    quantity: int <<non-negative>>
-    unit_price: int
+    name: VARCHAR(100)
+    'NOT NULL
+    discount_type: VARCHART(50)
+    'PERCENTAGE, FIXED_AMOUNT / NOT NULL
+    discount_value: Integer
+    'NOT NULL
+    description: VARCHAR(255)
+    image_url: VARCHAR(255)
+    is_active: BOOLEAN
+    'NOT NULL
+    start_date: DATE
+    'NOT NULL
+    end_date: DATE
+    'NOT NULL
 }
 
-entity "Cart" as Cart {
-    *id: long <<generated>>
+entity "categories" as categories {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    user_id: long <<FK>>
-    quantity: int <<non-negative>>
-    unit_price: int
-    status: string <<enum>>
-    'ACTIVE, CHECKED_OUT, ABANDONED
-    created_at: datetime
-    updated_at: datetime
+    name: VARCHAR(100)
+    'NOT NULL
+    description: VARCHAR(255)
 }
 
-entity "Order" as Order {
-    *id: long <<generated>>
+
+entity "products" as products {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    user_id: long <<FK>>
-    order_number: string
-    status: string <<enum>>
-    'PENDING, PAID, CANCELLED, SHIPPED, COMPLETED
-    payment_method: string <<enum>> 
-    'CREDIT_CARD, PAYPAL
-    is_paid: boolean
-    paid_at: datetime <<nullable>>
-    cancelled_at: datetime <<nullable>>
-    shipping_method: string <<enum>>
-    'STANDARD, EXPRESS
-    shipping_address: string
-    shipping_status: string <<enum>>
-    'PENDING, IN_TRANSIT, DELIVERED
-    total_price: int <<calculated>>
-    created_at: datetime
-    updated_at: datetime
+    +promotion_id: BIGINT
+    'REFERENCES promotions (id) ON DELETE SET NULL
+    +category_id: BIGINT <<FK>>
+    'REFERENCES categories (id) ON DELETE SET NULL
+    ---
+    name: VARCHAR(100)
+    'NOT NULL
+    price: BIGINT
+    'NOT NULL
+    image_url: VARCHAR(255)
+    in_stock: INT
+    'NOT NULL, DEFAULT 0
+    rating: DOUBLE
+    'PRECISION
+    sold_count: INT
+    short_description: VARCHAR(300)
 }
 
-entity "OrderItem" as OrderItem{
-    *id: long <<generated>>
+entity "carts" as carts {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    order_id: long <<FK>>
-    product_id: long
-    product_name: string
-    quantity: int <<non-negative>>
-    unit_price: int
-    total_price: int <<calculated>>
+    +user_id: BIGINT
+    'REFERENCES users(id) ON DELETE CASCADE / NOT NULL
+    ---
+    status: VARCHAR(50)
+    'ACTIVE, CHECKED_OUT, ABANDONED / NOT NULL
+    created_at: TIMESTAMPTZ 
+    'NOT NULL, DEFAULT now()
 }
 
-entity "Promotion" as Promotion {
-    *id: long <<generated>>
+entity "orders" as orders{
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    name: string
-    disconutType: string <<enum>>
-    'PERCENTAGE, FIXED_AMOUNT
-    disconutValue: int
-    description: string <<nullable>>
-    imageUrl: string
-    is_active: boolean
-    start_date: date
-    end_date: date
+    +user_id: BIGINT
+    'REFERENCES users(id) / NOT NULL
+    ---
+    merchant_trade_no VARCHAR(40)
+    '你的商店訂單編號（給 ECPay 的 MerchantTradeNo） / UNIQUE, NOT NULL
+    amount_cents INTEGER
+    '以「分」存 NTD，避免浮點 / NOT NULL
+    currency VARCHAR(3)
+    'NOT NULL, DEFAULT 'TWD'
+    status: VARCHAR(20)
+    'PENDING, PAID, CANCELED, EXPIRED, REFUNDING / NOT NULL
+    created_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT now()
+    updated_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT now()
 }
 
-entity "Payment" as Payment {
-    *id: long <<generated>>
+entity "payments" as payments {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    order_id: long <<FK, unique>>
-    payment_method: string <<enum>> 
-    'CREDIT_CARD, PAYPAL, BANK_TRANSFER
-    status: string <<enum>>
-    'PENDING, COMPLETED, FAILED
-    amount: int 
-    transaction_id: string <<nullable>>
-    created_at: datetime
-    updated_at: datetime
+    +order_id: BIGINT
+    'REFERENCES orders(id) ON DELETE CASCADE / NOT NULL
+    ---
+    method: VARCHAR(20)
+    'CREDIT, ATM, CVS / NOT NULL
+    amount_cents: INTEGER
+    'NOT NULL
+    status: VARCHAR(20)
+    'INIT, WAITING, SUCCESS, FAIL, EXPIRED / NOT NULL
+    ecpay_trade_no: VARCHAR(20)
+    '綠界回傳 TradeNo
+    merchant_trade_no: VARCHAR(40)
+    '再存一份方便查 / NOT NULL
+    bank_code: VARCHAR(10)
+    'ATM專用
+    v_account: VARCHAR(30)
+    'ATM專用
+    payment_no: VARCHAR(30)
+    'CVS專用
+    expire_at: datetime
+    'ATM/CVS 繳款期限
+    raw_payload: JSONB
+    '最近一次對應的原始payload
+    created_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT: now()
+    updated_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT: now()
+    UNIQUE (merchant_trade_no)
 }
 
-entity "Category" as Category {
-    *id: long <<generated>>
+entity "payment_transactions" as payment_transactions {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    name: string
-    description: string <<nullable>>
+    +payment_id: BIGINT
+    'REFERENCES payment(id) ON DELETE CASCADE / NOT NULL
+    ---
+    event_type VARCHAR(30)
+    'REQUEST, NOTIFY, QUERY, REFUND, CLOSE / NOT NULL
+    event_status VARCHAR(20)
+    'SUCCESS , FAIL / NOT NULL
+    ecpay_trade_no: VARCHAR(20)
+    payload: JSONB
+    '完整請求或回應 / NOT NULL
+    created_at: TIMESTAMPTZ
+    'NOT NULL
 }
 
-entity "Tag" as Tag{
-    *id: long <<generated>>
+entity "refunds" as refunds {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    name: string
-}
-entity "ProductTag" as ProductTag {
-    *product_id: long <<FK>>
-    *tag_id: long <<FK>>
+    +payment_id: BIGINT <<FK>>
+    'REFERENCES payments(id) ON DELETE CASCADE / NOT NULL
+    ---
+    amount_cents: INTEGER
+    'NOT NULL
+    reason: TEXT
+    status: VARCHAR(20)
+    'REQUESTED, PROCESSING, SUCCESS, FAIL / NOT NULL
+    ecpay_refund_no: VARCHAR(30)
+    raw_payload: JSONB
+    created_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT: now()
 }
 
-entity "Token" as Token {
-    *id: long <<generated>>
+entity "webhook_events" as webhook_events {
+    *id: BIGSERIAL
+    'PRIMARY KEY
     ---
-    user_id: long <<FK>>
-    token: string <<unique>>
-    token_type: string <<enum>>
-    'forgetPassword, emailVerification
-    used: boolean <<default false>>
-    created_at: datetime
-    expires_at: datetime
+    provider VARCHAR(20)
+    'ECPAY / NOT NULL
+    event_key VARCHAR(100)
+    '例如 TradeNo 或 TradeNo+RtnCode+guts / NOT NULL
+    payload: JSONB
+    'NOT NULL
+    processed: BOOLEAN
+    'NOT NULL, DEFAULT false
+    created_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT now()
+    UNIQUE(provider, event_key)
 }
 
-Tag }|--|{ ProductTag
-ProductTag }|--|| Product
-Cart }|--|| User
-Cart ||--|{ CartItem
-CartItem }|--|| Product
-Order }|--|| User
-Order ||--|{ OrderItem
-Product }|--|| Promotion
-Product }|--|| Category
-Payment ||--|| Order
-Token }|--|| User
+entity "order_items" as order_items{
+    *id: BIGSERIAL
+    'PRIMARY KEY
+    ---
+    +order_id: BIGINT
+    'REFERENCES orders(id) ON DELETE CASCADE / NOT NULL
+    ---
+    product_id: BIGINT
+    'NOT NULL
+    product_name: VARCHAR(100)
+    'NOT NULL
+    quantity: INT
+    'CHECK (quantity > 0), NOT NULL
+    unit_price: INT
+    'CHECK (unit_price >= 0), NOT NULL
+    total_price: INT
+    'NOT NULL
+}
+
+entity "cart_items" as cart_items {
+    *id: BIGSERIAL
+    'PRIMARY KEY
+    ---
+    +cart_id: BIGINT
+    'REFERENCES carts(id) ON DELETE CASCADE / NOT NULL
+    +product_id: BIGINT
+    'REFERENCES products(id) ON DELETE CASCADE / NOT NULL
+    ---
+    quantity: INT
+    'NOT NULL, CHECK (quantity > 0) DEFAULT 1
+    unit_price: INT
+    'NOT NULL, CHECK (unit_price >= 0)
+}
+
+
+entity "tags" as tags{
+    *id: BIGSERIAL
+    'PRIMARY KEY
+    ---
+    name: VARCHAR(50)
+    'NOT NULL
+}
+entity "product_tags" as product_tags {
+    *PRIMARY KEY (product_id, tag_id)
+    ---
+    +product_id: BIGINT
+    'REFERENCES products(id) ON DELETE CASCADE / NOT NULL
+    +tag_id: BIGINT
+    'REFERENCES tags(id) ON DELETE CASCADE / NOT NULL
+
+}
+
+entity "tokens" as tokens {
+    *id: BIGSERIAL
+    'PRIMARY KEY
+    ---
+    +user_id: BIGINT
+    'REFERENCES users(id) ON DELETE CASCADE / NOT NULL
+    ---
+    token: VARCHAR(255)
+    'NOT NULL
+    token_type: VARCHAR(50)
+    'forgetPassword, emailVerification / NOT NULL
+    used: BOOLEAN
+    'NOT NULL, DEFAULT: false
+    created_at: TIMESTAMPTZ
+    'NOT NULL, DEFAULT: now()
+    expires_at: TIMESTAMPTZ
+    'NOT NULL
+}
+
+tag ||--o{ product_tags
+products ||--o{ product_tags
+carts }o--|| users
+carts ||--o{ cart_items
+products ||--o{ cart_items
+orders }o--|| users
+orders ||--o{ order_items
+orders ||--o{ payments
+products }o--|| promotions
+products }o--|| categories
+payments ||--o{ payment_transactions
+payments ||--o{ refunds
+tokens }o--|| users
+
 @enduml
