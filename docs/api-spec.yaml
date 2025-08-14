@@ -1289,6 +1289,112 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError" 
+  /payments/checkout:
+    post:
+      tags:
+        - payments
+      summary: "結帳付款"
+      description: "使用者提交付款資訊以進行結帳"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentCheckoutRequest"
+      responses:
+        '200':
+          description: "結帳付款成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "結帳付款失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /payments/return:
+    post:
+      tags:
+        - payments
+      summary: "付款回調"
+      description: "支付系統回調通知"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EcpayServerReturn"
+      responses:
+        '200':
+          description: "付款回調成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "付款回調失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /payments/result:
+    post:
+      tags:
+        - payments
+      summary: "付款結果查詢"
+      description: "查詢付款結果"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EcpayServerResult"
+      responses:
+        '200':
+          description: "付款結果查詢成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "付款結果查詢失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
   /payments/mock:
     post:
       tags:
@@ -1644,6 +1750,91 @@ components:
           type: string
           format: email
           example: "test@gmail.com"
+    PaymentCheckoutRequest:
+      type: object
+      properties:
+        orderId:
+          type: string
+          example: "ORD123456789"
+        amount:
+          type: integer
+          example: 2000
+        itemName:
+          type: string
+          example: "藍芽耳機"
+        tradeDesc:
+          type: string
+          example: "訂單描述"
+    EcpayServerReturn:
+      type: object
+      properties:
+        MerchantTradeID:
+          type: string
+          example: "1234567890"
+        MerchantTradeNo:
+          type: string
+          example: "ORD123456789"
+        RtnCode:
+          type: string
+          example: "1"
+        RtnMsg:
+          type: string
+          example: "交易成功"
+        TradeAmt:
+          type: integer
+          example: 2000
+        TradeNo:
+          type: string
+          example: "1234567890"
+        TradeDate:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+        PaymentDate:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+        PaymentType:
+          type: string
+          example: "CREDIT"
+        CheckMacValue:
+          type: string
+          example: "CBCDB141FA98C048E9CD1CD0521B9D95965F5A988F001F413D61083B98734854"
+    EcpayServerResult:
+      type: object
+      properties:
+        MerchantTradeID:
+          type: string
+          example: "1234567890"
+        MerchantTradeNo:
+          type: string
+          example: "ORD123456789"
+        RtnCode:
+          type: string
+          example: "1"
+        RtnMsg:
+          type: string
+          example: "交易成功"
+        TradeAmt:
+          type: integer
+          example: 2000
+        TradeNo:
+          type: string
+          example: "1234567890"
+        TradeDate:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+        PaymentDate:
+          type: string
+          format: date-time
+          example: "2025-06-23T14:00:00"
+        PaymentType:
+          type: string
+          example: "CREDIT"
+        CheckMacValue:
+          type: string
+          example: "CBCDB141FA98C048E9CD1CD0521B9D95965F5A988F001F413D61083B98734854"
     LoginInfo:
       type: object
       properties:
