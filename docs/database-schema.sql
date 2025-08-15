@@ -65,8 +65,15 @@ CREATE TABLE orders (
   amount_cents INTEGER NOT NULL,
   currency VARCHAR(3) NOT NULL DEFAULT 'TWD',
   status VARCHAR(20) NOT NULL,
+  payment_method VARCHAR(20) NOT NULL,
+  paid_at TIMESTAMPTZ,
+  cancelled_at TIMESTAMPTZ,
+  shipping_method VARCHAR(20) NOT NULL,
+  shipping_address VARCHAR(255) NOT NULL,
+  shipping_status VARCHAR(30) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  trade_desc VARCHAR(255)
 );
 
 -- 付款意圖（一次下單可多次付款意圖，但一般一筆）
