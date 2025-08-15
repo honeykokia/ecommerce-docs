@@ -743,7 +743,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CheckoutRequest"
+              $ref: "#/components/schemas/CreateOrderRequest"
       responses:
         '200':
           description: "建立訂單成功"
@@ -758,7 +758,7 @@ paths:
                         type: object
                         properties:
                           order:
-                            $ref: "#/components/schemas/OrderInfo"
+                            $ref: "#/components/schemas/CreateOrderResponse"
         '400':
           description: "建立訂單失敗"
           content:
@@ -1196,7 +1196,7 @@ paths:
             schema:
               $ref: "#/components/schemas/CreatePromotionRequest"
       responses:
-        '201':
+        '200':
           description: "新增促銷活動成功"
           content:
             application/json:
@@ -1307,7 +1307,7 @@ paths:
         '200':
           description: "結帳付款成功"
           content:
-            application/json:
+            TEXT/HTML:
               schema:
                 $ref: "#/components/schemas/ApiResponse"
         '400':
@@ -1531,18 +1531,13 @@ components:
         shippingAddress:
           type: string
           example: "台北市中正區某某路123號"
-    CheckoutRequest:
+    CreateOrderRequest:
       type: object
       required:
-        - cartId
         - paymentMethod
         - shippingMethod
         - shippingAddress
       properties:
-        cartId:
-          type: long
-          example: 123
-          description: "購物車 ID"
         paymentMethod:
           type: string
           enum: [CREDIT_CARD, PAYPAL, LINE_PAY]
@@ -1556,7 +1551,7 @@ components:
           type: string
           example: "台北市中正區某某路123號"
           description: "配送地址"
-        notes:
+        tradeDesc:
           type: string
           example: "請在包裹上標註禮物"
     PaymentInitiateRequest:
@@ -1949,19 +1944,23 @@ components:
         userId:
           type: long
           example: 1
-        orderNumber:
+        MerchantTradeNo:
           type: string
-          example: "ORD123456789" 
+          example: "ORD123456789"
+        amountCents:
+          type: integer
+          example: 4000
+        currency:
+          type: string
+          example: "TWD"
         status:
           type: string
+          enum: [PENDING, PAID, CANCELED, EXPIRED, REFUNDING]
           example: "PENDING"
         paymentMethod:
           type: string
-          enum: [CREDIT_CARD, PAYPAL, LINE_PAY]
-          example: "CREDIT_CARD"
-        isPaid:
-          type: boolean
-          example: false
+          enum: [Credit]
+          example: "Credit"
         paidAt:
           type: string
           format: date-time
@@ -1981,9 +1980,6 @@ components:
         shippingStatus:
           type: string
           example: "PENDING"
-        totalPrice:
-          type: long
-          example: 4000
         createAt:
           type: string
           format: date-time
@@ -2074,6 +2070,21 @@ components:
           type: string
           example: "某某路123號"
           nullable: true
+    CreateOrderResponse:
+      type: object
+      properties:
+        MerchantTradeNo:
+          type: string
+          example: "ORD123456789"
+        amountCents:
+          type: integer
+          example: 1000
+        tradeDesc:
+          type: string
+          example: "訂單描述"
+        itemName:
+          type: string
+          example: "藍芽耳機x1#滑鼠x2"
   securitySchemes:
     bearerAuth:
       type: http
