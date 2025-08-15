@@ -111,10 +111,22 @@ entity "orders" as orders{
     'NOT NULL, DEFAULT 'TWD'
     status: VARCHAR(20)
     'PENDING, PAID, CANCELED, EXPIRED, REFUNDING / NOT NULL
+    payment_method: VARCHAR(20)
+    'CREDIT / NOT NULL
+    paid_at: TIMESTAMPTZ
+    cancelled_at: TIMESTAMPTZ
+    shipping_method: VARCHAR(20)
+    'NOT NULL
+    shipping_address: VARCHAR(255)
+    'NOT NULL
+    shipping_status: VARCHAR(30)
+    'NOT NULL
     created_at: TIMESTAMPTZ
     'NOT NULL, DEFAULT now()
     updated_at: TIMESTAMPTZ
     'NOT NULL, DEFAULT now()
+    tradeDesc: VARCHAR(255)
+    '訂單描述
 }
 
 entity "payments" as payments {
