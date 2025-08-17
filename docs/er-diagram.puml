@@ -22,7 +22,7 @@ entity "users" as users {
     country: VARCHAR(100)
     address: VARCHAR(255)
     role: VARCHAR(50)
-    'guest, member, admin / NOT NULL
+    'guest, user, admin / NOT NULL
     status: VARCHAR(50)
     'ACTIVE, INACTIVE, BANNED / NOT NULL
     created_at: TIMESTAMPTZ
