@@ -53,10 +53,13 @@ package AdminPanel{
     usecase "訂單刪除" <<design>> as DeleteOrder
     usecase "會員列表" <<design>> as MemberList
     usecase "會員狀態編輯" <<design>> as EditMemberStatus
+    usecase "類別列表" <<design>> as CategoryList
+    usecase "類別新增" <<design>> as AddCategory
+    usecase "類別刪除" <<design>> as DeleteCategory
+    usecase "活動列表" <<design>> as EventList
     usecase "活動新增" <<design>> as AddEvent
     usecase "活動編輯" <<design>> as EditEvent
     usecase "活動刪除" <<design>> as DeleteEvent
-
 }
 
 package Payment{

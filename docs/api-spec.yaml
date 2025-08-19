@@ -1217,6 +1217,133 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
+  /admin/promotions/{promotionId}:
+    put:
+      tags:
+        - admin
+      summary: "管理員更新促銷活動"
+      description: "管理員更新指定促銷活動"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: promotionId
+          required: true
+          schema:
+            type: integer
+          description: "促銷活動ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePromotionRequest"
+      responses:
+        '200':
+          description: "更新促銷活動成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "更新促銷活動失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    delete:
+      tags:
+        - admin
+      summary: "管理員刪除促銷活動"
+      description: "管理員刪除指定促銷活動"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: promotionId
+          required: true
+          schema:
+            type: integer
+          description: "促銷活動ID"
+      responses:
+        '200':
+          description: "刪除促銷活動成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "刪除促銷活動失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+
+  /admin/promotions/{promotionId}/image:
+    put:
+      tags:
+        - admin
+      summary: "管理員更新促銷活動圖片"
+      description: "管理員更新指定促銷活動的圖片"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: promotionId
+          required: true
+          schema:
+            type: integer
+          description: "促銷活動ID"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  $ref: "#/components/schemas/UpdatePromotionImageRequest"
+      responses:
+        '200':
+          description: "更新促銷活動圖片成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "更新促銷活動圖片失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+
   /admin/categories:
     post:
       tags:
@@ -1240,6 +1367,85 @@ paths:
                 $ref: "#/components/schemas/ApiResponse"
         '400':
           description: "新增商品類別失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /admin/categories/{categoryId}:
+    put:
+      tags:
+        - admin
+      summary: "管理員更新商品類別"
+      description: "管理員更新指定商品類別"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: integer
+          description: "商品類別ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryRequest"
+      responses:
+        '200':
+          description: "更新商品類別成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "更新商品類別失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+    delete:
+      tags:
+        - admin
+      summary: "管理員刪除商品類別"
+      description: "管理員刪除指定商品類別"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: integer
+          description: "商品類別ID"
+      responses:
+        '200':
+          description: "刪除商品類別成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "刪除商品類別失敗"
           content:
             application/json:
               schema:
@@ -1659,7 +1865,57 @@ components:
           format: date
           example: "2025-06-30"
           description: "促銷活動結束日期"
+    UpdatePromotionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "夏季大促銷"
+          description: "促銷活動名稱"
+        discountType:
+          type: string
+          enum: [PERCENTAGE, FIXED_AMOUNT]
+          example: "PERCENTAGE"
+          description: "折扣類型"
+        discountValue:
+          type: integer
+          example: 10
+          description: "折扣數值"
+        description:
+          type: string
+          example: "夏季大促銷活動，所有商品 8 折"
+          description: "促銷活動描述"
+        isActive:
+          type: boolean
+          example: true
+          description: "促銷活動是否啟用"
+        startDate:
+          type: string
+          format: date
+          example: "2025-06-01"
+          description: "促銷活動開始日期"
+        endDate:
+          type: string
+          format: date
+          example: "2025-06-30"
+          description: "促銷活動結束日期"
+    UpdatePromotionImageRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: "上傳的圖片檔案"
     CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "電腦周邊"
+        description:
+          type: string
+          example: "各式電腦周邊設備"
+    UpdateCategoryRequest:
       type: object
       properties:
         name:
@@ -2036,7 +2292,7 @@ components:
           example: "2025-06-30T23:59:59"
         imageUrl:
           type: string
-          example: "/upload/event.jpg"
+          example: "/upload/defaultPromotion.jpg"
         isActive:
           type: boolean
           example: true
