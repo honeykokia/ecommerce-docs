@@ -67,7 +67,7 @@ entity "products" as products {
     ---
     +promotion_id: BIGINT
     'REFERENCES promotions (id) ON DELETE SET NULL
-    +category_id: BIGINT <<FK>>
+    +category_id: BIGINT
     'REFERENCES categories (id) ON DELETE SET NULL
     ---
     name: VARCHAR(100)

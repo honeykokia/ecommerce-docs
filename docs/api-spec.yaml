@@ -821,6 +821,54 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
+  /orders/{orderId}/status:
+    get:
+      tags:
+        - orders
+      summary: "訂單狀態"
+      description: "取得指定訂單的狀態"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+          description: "訂單ID"
+      responses:
+        '200':
+          description: "取得訂單狀態成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          order:
+                            type: string
+                            properties:
+                              status:
+                                type: string
+        '400':
+          description: "取得訂單狀態失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
   /promotions:
     get:
       tags:
@@ -1939,7 +1987,7 @@ components:
         categoryId:
           type: long
           example: 1
-        imageUrl:
+        imageURL:
           type: string
           example: "/upload/defaultProduct.jpg"
         inStock:
@@ -2001,10 +2049,10 @@ components:
     PaymentCheckoutRequest:
       type: object
       properties:
-        orderId:
+        merchantTradeNo:
           type: string
           example: "ORD123456789"
-        amount:
+        amountCents:
           type: integer
           example: 2000
         itemName:
@@ -2118,9 +2166,12 @@ components:
         name:
           type: string
           example: "藍芽耳機"
-        price:
+        originalPrice:
           type: integer
           example: 2000
+        finalPrice:
+          type: integer
+          example: 1800
         promotionId:
           type: long
           example: 1
@@ -2337,6 +2388,9 @@ components:
     CreateOrderResponse:
       type: object
       properties:
+        orderId:
+          type: long
+          example: 1
         MerchantTradeNo:
           type: string
           example: "ORD123456789"
