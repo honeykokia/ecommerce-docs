@@ -9,7 +9,6 @@
 
 - `docs/api-spec.yaml`：OpenAPI 3.0 API 規格
 - `docs/database-schema.sql`：PostgreSQL 建表 SQL
-- `docs/entity-design.yaml`：主要實體設計（User/Product/Order...）
 - `docs/er-diagram.puml`：ER 圖（PlantUML 格式）
 - `docs/feature-modules.yaml`：功能模組規劃
 - `docs/feature-usecase.puml`：用例圖（PlantUML 格式）
