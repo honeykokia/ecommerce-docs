@@ -13,7 +13,6 @@
 - `docs/er-diagram.puml`：ER 圖（PlantUML 格式）
 - `docs/feature-modules.yaml`：功能模組規劃
 - `docs/feature-usecase.puml`：用例圖（PlantUML 格式）
-- `docs/PR.md`：功能 / 資料結構 / 命名 / 流程調整紀錄
 
 ---
 
