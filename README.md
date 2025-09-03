@@ -32,16 +32,16 @@
 完整 API 規格請參考 [api-spec.yaml](docs/api-spec.yaml)。  
 常見端點如下：
 
-- **訂單建立**：`POST /orders/me`  
-  - 請求：[`CreateOrderRequest`](docs/api-spec.yaml)  
-  - 回應：[`CreateOrderResponse`](docs/api-spec.yaml)  
+- **使用者登入**：`POST /users/login`  
+  - 請求：[`LoginRequest`](docs/api-spec.yaml)  
+  - 回應：[`LoginInfo`](docs/api-spec.yaml)  
 
-- **付款結帳**：`POST /payments/checkout`  
-  - 請求：[`PaymentCheckoutRequest`](docs/api-spec.yaml)  
-  - 回應：跳轉至 ECPay 付款頁面  
+- **使用者註冊**：`POST /users/register`  
+  - 請求：[`RegisterRequest`](docs/api-spec.yaml)  
+  - 回應：[`UserInfo`](docs/api-spec.yaml)  
 
-- **付款結果查詢**：`POST /payments/result`  
-  - 請求：[`EcpayServerResult`](docs/api-spec.yaml)  
+- **使用者資料查詢**：`GET /users/me`  
+  - 回應：[`UserProfileInfo`](docs/api-spec.yaml)  
 
 ---
 
