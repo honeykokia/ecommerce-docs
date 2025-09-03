@@ -153,10 +153,11 @@ CREATE TABLE cart_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE tags (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    color VARCHAR(7) NOT NULL DEFAULT '#FF5733'
 );
 
 CREATE TABLE product_tags (

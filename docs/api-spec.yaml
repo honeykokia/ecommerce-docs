@@ -231,7 +231,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UpdatePasswordRequest"
+              $ref: "#/components/schemas/ChangePasswordRequest"
       responses:
         '200':
           description: "密碼修改成功"
@@ -255,7 +255,7 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
-  /users/forget-password:
+  /users/forgot-password:
     post:
       tags:
         - users
@@ -290,6 +290,40 @@ paths:
                 data:
                   errors:
                     email: "Email格式錯誤或未註冊"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+  /users/reset-password:
+    post:
+      tags:
+        - users
+      summary: "重置密碼"
+      description: "使用者輸入新密碼進行重置"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        '200':
+          description: "重置密碼成功"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        '400':
+          description: "重置密碼失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    newPassword: "新密碼格式錯誤"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -1110,6 +1144,59 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
+  /admin/products/{productId}/image:
+    put:
+      tags:
+        - admin
+      summary: "管理員更新商品圖片"
+      description: "管理員更新指定商品的圖片"
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+          description: "商品ID"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UpdateProductImageRequest"
+      responses:
+        '200':
+          description: "更新商品圖片成功"
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: "#/components/schemas/ApiResponse"
+                - type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        imageUrl:
+                          type: string
+                          example: "https://example.com/images/product123.jpg"
+        '400':
+          description: "更新商品圖片失敗"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              example:
+                timestamp: "2025-06-23T14:00:00"
+                data:
+                  errors:
+                    general: "連線異常請重新登入"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/forbiddenError"
+
   /admin/orders:
     get:
       tags:
@@ -1249,7 +1336,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResponse"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          promotion:
+                            $ref: "#/components/schemas/PromotionInfo"
         '400':
           description: "新增促銷活動失敗"
           content:
@@ -1365,17 +1460,23 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                file:
-                  $ref: "#/components/schemas/UpdatePromotionImageRequest"
+              $ref: "#/components/schemas/UpdatePromotionImageRequest"
       responses:
         '200':
           description: "更新促銷活動圖片成功"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResponse"
+                allOf:
+                  - $ref: "#/components/schemas/ApiResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          imageUrl:
+                            type: string
+                            example: "https://example.com/images/product123.jpg"
         '400':
           description: "更新促銷活動圖片失敗"
           content:
@@ -1391,7 +1492,6 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         '403':
           $ref: "#/components/responses/forbiddenError"
-
   /admin/categories:
     post:
       tags:
@@ -1963,7 +2063,7 @@ components:
           type: string
           format: binary
           description: "上傳的圖片檔案"
-    UpdatePasswordRequest:
+    ChangePasswordRequest:
       type: object
       required:
         - oldPassword
@@ -1979,6 +2079,18 @@ components:
         newConfirmPassword:
           type: string
           example: Bb123456
+    ResetPasswordRequest:
+      type: object
+      required:
+        - newPassword
+        - confirmPassword
+      properties:
+        newPassword:
+          type: string
+          example: "NewPassword123"
+        confirmPassword:
+          type: string
+          example: "NewPassword123"
     UpdateOrderRequest:
       type: object
       properties:
@@ -2107,7 +2219,7 @@ components:
           description: "促銷活動描述"
         imageUrl:
           type: string
-          example: "/upload/promotions/summer_sale.jpg"
+          example: "/upload/summer_sale.jpg"
           description: "促銷活動圖片"
         isActive:
           type: boolean
@@ -2188,7 +2300,7 @@ components:
         name:
           type: string
           example: "藍芽耳機"
-        price:
+        originalPrice:
           type: integer
           example: 2000
         promotionId:
@@ -2219,7 +2331,7 @@ components:
         name:
           type: string
           example: "藍芽耳機"
-        price:
+        originalPrice:
           type: integer
           example: 2000
         promotionId:
@@ -2228,9 +2340,6 @@ components:
         categoryId:
           type: long
           example: 1
-        imageUrl:
-          type: string
-          example: "/upload/defaultProduct.jpg"
         inStock:
           type: integer
           example: 20
@@ -2249,6 +2358,13 @@ components:
           items:
             type: integer
             example: [1]
+    UpdateProductImageRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: "上傳的圖片檔案"
     ResendVerificationEmailRequest:
       type: object
       properties:
@@ -2359,6 +2475,30 @@ components:
         CheckMacValue:
           type: string
           example: "CBCDB141FA98C048E9CD1CD0521B9D95965F5A988F001F413D61083B98734854"
+    CreateTagRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "新標籤"
+        description:
+          type: string
+          example: "這是一個新的標籤"
+        color:
+          type: string
+          example: "#FF5733"
+    UpdateTagRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "更新後的標籤名稱"
+        description:
+          type: string
+          example: "更新後的標籤描述"
+        color:
+          type: string
+          example: "#33FF57"
     LoginInfo:
       type: object
       properties:
@@ -2368,6 +2508,10 @@ components:
         token:
           type: string
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        role:
+          type: string
+          enum: [GUEST, USER, ADMIN]
+          example: "USER"
     UserInfo:
       type: object
       properties:
@@ -2540,6 +2684,12 @@ components:
         name:
           type: string
           example: "熱賣"
+        description:
+          type: string
+          example: "熱賣商品標籤"
+        color:
+          type: string
+          example: "#FF5733"
     PromotionInfo:
       type: object
       properties:
@@ -2569,7 +2719,7 @@ components:
           type: string
           format: date-time
           example: "2025-06-30T23:59:59"
-        imageUrl:
+        imageURL:
           type: string
           example: "/upload/defaultPromotion.jpg"
         isActive:

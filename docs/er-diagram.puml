@@ -257,7 +257,11 @@ entity "tags" as tags{
     ---
     name: VARCHAR(50)
     'NOT NULL
+    description: VARCHAR(255)
+    color: VARCHAR(7)
+    'NOT NULL , DEFAULT #FF5733
 }
+
 entity "product_tags" as product_tags {
     *PRIMARY KEY (product_id, tag_id)
     ---
