@@ -49,7 +49,7 @@
 
 - 使用 **PostgreSQL**  
 - 支援商品、訂單、購物車、活動、標籤、付款等完整資料表  
-- 關聯設計詳見 [ER 圖](docs/er-diagram.puml)  
+- 關聯設計詳見 [ER 圖](./docs/er-diagram.png)  
 
 文件入口：  
 - [資料庫結構 (SQL)](docs/database-schema.sql)  

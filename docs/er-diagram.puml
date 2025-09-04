@@ -291,7 +291,7 @@ entity "tokens" as tokens {
     'NOT NULL
 }
 
-tag ||--o{ product_tags
+tags ||--o{ product_tags
 products ||--o{ product_tags
 carts }o--|| users
 carts ||--o{ cart_items
