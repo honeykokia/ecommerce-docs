@@ -89,7 +89,7 @@ paths:
                         type: object
                         properties:
                           user:
-                            $ref: "#/components/schemas/UserInfo"
+                            $ref: "#/components/schemas/RegisterResponse"
         '400':
           description: "註冊失敗"
           content:
@@ -2031,6 +2031,23 @@ components:
         confirmPassword:
           type: string
           example: Aa123456
+    RegisterResponse:
+      type: object
+      properties:
+        id:
+          type: long
+          example: 1
+        name:
+          type: string
+          example: "Test"
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, BANNED]
+          example: "ACTIVE"
+        role:
+          type: string
+          enum: [GUEST, USER, ADMIN]
+          example: "USER"
     UpdateUserRequest:
       type: object
       properties:
@@ -2521,6 +2538,9 @@ components:
         name:
           type: string
           example: "Test"
+        email:
+          type: string
+          example: "Test@gmail.com"
         status:
           type: string
           enum: [ACTIVE, INACTIVE, BANNED]
